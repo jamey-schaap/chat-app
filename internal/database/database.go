@@ -1,23 +1,25 @@
 package database
 
 import (
+	"chat-app/internal/config"
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
-
-	"github.com/go-sql-driver/mysql"
 )
 
-func ConnectToMySql() *sql.DB {
-	cfg := mysql.NewConfig()
-	cfg.User = os.Getenv("MYSQL_USER")
-	cfg.Passwd = os.Getenv("MYSQL_PASSWORD")
-	cfg.DBName = os.Getenv("MYSQL_DATABASE")
-	cfg.Addr = fmt.Sprintf("%s:%s", os.Getenv("MYSQL_HOST"), os.Getenv("MYSQL_PORT"))
-	cfg.Net = "tcp"
+var (
+	db *sql.DB
+)
 
-	db, err := sql.Open("mysql", cfg.FormatDSN())
+func New() *sql.DB {
+	if db != nil {
+		return db
+	}
+
+	cfg := config.LoadConfig().MySQL
+
+	var err error
+	db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
 		log.Fatal(err)
 	}

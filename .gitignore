@@ -26,3 +26,4 @@ go.work.sum
 .env
 
 deployments/mysql-db/data
+main
