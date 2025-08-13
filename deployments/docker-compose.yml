@@ -1,0 +1,14 @@
+services: 
+  mysql: 
+    image: mysql:latest 
+#    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_DATABASE}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports: 
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - ./deployments/mysql-db/data:/var/lib/mysql
+      - ./deployments/mysql-db/init.sql:/docker-entrypoint-initdb.d/init.sql
