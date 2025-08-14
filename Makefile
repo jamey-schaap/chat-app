@@ -1,3 +1,5 @@
+db_data_dir = "./deployments/mysql-db/data"
+
 all: build test
 
 build: 
@@ -30,3 +32,10 @@ docker-down:
 		echo "Falling back to Docker Compose V1"; \
 		docker-compose down; \
 	fi
+	
+clear-db-data:
+	@if [ -d $(db_data_dir) ]; then \
+		rm -r $(db_data_dir); \
+	fi
+	
+docker-clean-run: clear-db-data docker-run
