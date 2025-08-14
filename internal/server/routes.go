@@ -25,7 +25,7 @@ func (s *server) getChatsHandler(c *gin.Context) {
 		err = results.Scan(&chat.ID, &chat.Message, &chat.UserId)
 		if err != nil {
 			c.Status(http.StatusNotFound)
-			// throw specific error, catch it with middleware and return generic error
+			// throw a specific error, catch it with middleware and return generic error
 		}
 
 		chats = append(chats, chat)
@@ -70,7 +70,7 @@ func (s *server) updateChatHandler(c *gin.Context) {
 		return
 	}
 
-	_, err := s.db.Exec("UPDATE users SET message = ? WHERE id = ?", newChatMessage.Message, newChatMessage.UserId)
+	_, err := s.db.Exec("UPDATE chat_messages SET message = ? WHERE id = ?", newChatMessage.Message, newChatMessage.UserId)
 	if err != nil {
 		c.Status(http.StatusBadRequest)
 		return
