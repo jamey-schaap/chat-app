@@ -18,11 +18,18 @@ clean:
 	@rm -f main
 	
 docker-run: 
-	@if docker compose up 2>/dev/null; then \
+	@if [ $(APP_ENV) = "local" ]; then \
+  		echo "Using .env file"; \
+		docker_args="--env-file .env"; \
+	else \
+		docker_args=""; \
+	fi	
+
+	@if docker compose $(docker_args) up 2>/dev/null; then \
 		: ; \
 	else \
 		echo "Falling back to Docker Compose V1"; \
-		docker-compose up; \
+		docker-compose up $(docker_args); \
 	fi
 	
 docker-down:
