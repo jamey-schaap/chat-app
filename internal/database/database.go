@@ -16,7 +16,7 @@ func New() *sql.DB {
 		return db
 	}
 
-	cfg := config.LoadConfig().MySQL
+	cfg := config.GetConfig().MySQL
 
 	var err error
 	db, err = sql.Open("mysql", cfg.FormatDSN())

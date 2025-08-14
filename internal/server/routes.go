@@ -13,8 +13,8 @@ type chatMessage struct {
 	UserId  string `json:"userId"`
 }
 
-func (s *server) getChats(c *gin.Context) {
-	results, err := s.db.Query("SELECT * FROM chats")
+func (s *server) getChatsHandler(c *gin.Context) {
+	results, err := s.db.Query("SELECT * FROM chat_messages")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,10 +34,10 @@ func (s *server) getChats(c *gin.Context) {
 	c.JSON(http.StatusOK, chats)
 }
 
-func (s *server) getChatById(c *gin.Context) {
+func (s *server) getChatByIdHandler(c *gin.Context) {
 	id := c.Param("id")
 
-	result := s.db.QueryRow("SELECT * FROM chats WHERE id = ?", id)
+	result := s.db.QueryRow("SELECT * FROM chat_messages WHERE id = ?", id)
 	var chat chatMessage
 
 	err := result.Scan(&chat.ID, &chat.Message, &chat.UserId)
@@ -48,14 +48,14 @@ func (s *server) getChatById(c *gin.Context) {
 	c.JSON(http.StatusOK, chat)
 }
 
-func (s *server) postChat(c *gin.Context) {
+func (s *server) postChatHandler(c *gin.Context) {
 	var newChatMessage chatMessage
 	if err := c.BindJSON(&newChatMessage); err != nil {
 		c.Status(http.StatusBadRequest)
 		return
 	}
 
-	_, err := s.db.Exec("INSERT INTO chats VALUES (?, ?, ?)", newChatMessage.ID, newChatMessage.Message, newChatMessage.UserId)
+	_, err := s.db.Exec("INSERT INTO chat_messages VALUES (?, ?, ?)", newChatMessage.ID, newChatMessage.Message, newChatMessage.UserId)
 	if err != nil {
 		c.Status(http.StatusBadRequest)
 		return
@@ -64,7 +64,7 @@ func (s *server) postChat(c *gin.Context) {
 	c.JSON(http.StatusOK, newChatMessage)
 }
 
-func (s *server) updateChat(c *gin.Context) {
+func (s *server) updateChatHandler(c *gin.Context) {
 	var newChatMessage chatMessage
 	if err := c.BindJSON(&newChatMessage); err != nil {
 		return
@@ -82,10 +82,10 @@ func (s *server) updateChat(c *gin.Context) {
 func (s *server) RegisterRoutes() http.Handler {
 	router := gin.Default()
 
-	router.GET("/chats", s.getChats)
-	router.GET("/chats/:id", s.getChatById)
-	router.POST("/chats", s.postChat)
-	router.PUT("/chats", s.updateChat)
+	router.GET("/chats", s.getChatsHandler)
+	router.GET("/chats/:id", s.getChatByIdHandler)
+	router.POST("/chats", s.postChatHandler)
+	router.PUT("/chats", s.updateChatHandler)
 
 	return router
 }

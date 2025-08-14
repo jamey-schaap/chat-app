@@ -1,12 +1,11 @@
 package server
 
 import (
+	"chat-app/internal/config"
 	"chat-app/internal/database"
 	"database/sql"
 	"fmt"
 	"net/http"
-	"os"
-	"strconv"
 	"time"
 )
 
@@ -16,10 +15,8 @@ type server struct {
 }
 
 func NewServer() *http.Server {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	fmt.Println(port)
 	newServer := &server{
-		port: port,
+		port: config.GetConfig().Server.Port,
 		db:   database.New(),
 	}
 
