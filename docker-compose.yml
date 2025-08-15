@@ -1,5 +1,5 @@
 services: 
-  mysql: 
+  mysql-db: 
     image: mysql:latest 
 #    restart: always
     environment:
@@ -10,3 +10,12 @@ services:
     volumes:
       - ./deployments/mysql-db/data:/var/lib/mysql
       - ./deployments/mysql-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+
+  client:
+    image: chat-app-client:latest
+    build:
+      context: ./web/client
+      dockerfile: ./Dockerfile
+#    Configure cache to and from later https://docs.docker.com/reference/compose-file/build/#cache_from
+    

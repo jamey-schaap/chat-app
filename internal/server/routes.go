@@ -44,6 +44,7 @@ func (s *server) getChatByIdHandler(c *gin.Context) {
 	err := result.Scan(&chat.ID, &chat.Message, &chat.UserId)
 	if err != nil {
 		c.Status(http.StatusNotFound)
+		return
 	}
 
 	c.JSON(http.StatusOK, chat)
