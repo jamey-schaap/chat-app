@@ -25,7 +25,8 @@ func (s *server) getChatsHandler(c *gin.Context) {
 		err = results.Scan(&chat.ID, &chat.Message, &chat.UserId)
 		if err != nil {
 			c.Status(http.StatusNotFound)
-			// throw a specific error, catch it with middleware and return generic error
+			// throw a specific error, catch it with middleware and return generic error?
+			return
 		}
 
 		chats = append(chats, chat)
@@ -81,6 +82,8 @@ func (s *server) updateChatHandler(c *gin.Context) {
 
 func (s *server) RegisterRoutes() http.Handler {
 	router := gin.Default()
+
+	router.Use(CORSMiddleware())
 
 	router.GET("/chats", s.getChatsHandler)
 	router.GET("/chats/:id", s.getChatByIdHandler)
