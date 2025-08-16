@@ -28,3 +28,4 @@ go.work.sum
 
 deployments/mysql-db/data
 ~
+.idea/httpRequests
