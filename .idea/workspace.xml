@@ -5,9 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3e588fa8-0a82-4e68-a975-5954b75b42de" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/web/client/.eslintrc.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/client/app/models/chat-message.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/client/app/routes/home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/client/app/routes/home.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/client/app/welcome/welcome.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/client/app/welcome/welcome.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/web/client/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/client/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/web/client/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/client/react-router.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/client/react-router.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
