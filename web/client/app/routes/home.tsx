@@ -1,7 +1,7 @@
 import type { Route } from "./+types/home";
 import axios from "axios";
 import type ChatMessage from "~/models/chat-message";
-import { Welcome } from "~/welcome/welcome";
+import { Chat } from "~/components/chat/chat.component";
 
 export function meta({}: Route.MetaArgs) {
 	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
@@ -12,5 +12,5 @@ export const clientLoader = async () =>
 
 export default function Home({ loaderData }: Route.ComponentProps) {
 	console.log(loaderData);
-	return <Welcome />;
+	return <Chat />;
 }
