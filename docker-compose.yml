@@ -11,7 +11,6 @@ services:
       - ./deployments/mysql-db/data:/var/lib/mysql
       - ./deployments/mysql-db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-
   client:
     image: chat-app-client:latest
     build:
