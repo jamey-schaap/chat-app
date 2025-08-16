@@ -1,16 +1,21 @@
 package server
 
 import (
+	"chat-app/internal/models"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type chatMessage struct {
-	ID      string `json:"id"`
-	Message string `json:"message"`
-	UserId  string `json:"userId"`
+	ID        uuid.UUID `json:"id" sql:"type:uuid"`
+	Message   string    `json:"message"`
+	UserId    uuid.UUID `json:"userId"  sql:"type:uuid"`
+	TimeStamp time.Time `json:"timestamp"`
 }
 
 func (s *server) getChatsHandler(c *gin.Context) {
@@ -51,14 +56,23 @@ func (s *server) getChatByIdHandler(c *gin.Context) {
 }
 
 func (s *server) postChatHandler(c *gin.Context) {
-	var newChatMessage chatMessage
-	if err := c.BindJSON(&newChatMessage); err != nil {
+	var request models.CreateChatMessageRequest
+	if err := c.BindJSON(&request); err != nil {
 		c.Status(http.StatusBadRequest)
 		return
 	}
 
-	_, err := s.db.Exec("INSERT INTO chat_messages VALUES (?, ?, ?)", newChatMessage.ID, newChatMessage.Message, newChatMessage.UserId)
+	tmpUserId, _ := uuid.Parse("aa48082a-5d5a-4147-9de3-2d994b6f790d")
+	newChatMessage := chatMessage{
+		ID:        uuid.New(),
+		Message:   request.Message,
+		TimeStamp: time.Now().UTC(),
+		UserId:    tmpUserId,
+	}
+
+	_, err := s.db.Exec("INSERT INTO chat_messages VALUES (UUID_TO_BIN(?), ?, uuid_to_bin(?))", newChatMessage.ID, newChatMessage.Message, newChatMessage.UserId)
 	if err != nil {
+		fmt.Println(err)
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -74,6 +88,7 @@ func (s *server) updateChatHandler(c *gin.Context) {
 
 	_, err := s.db.Exec("UPDATE chat_messages SET message = ? WHERE id = ?", newChatMessage.Message, newChatMessage.UserId)
 	if err != nil {
+		fmt.Println(err)
 		c.Status(http.StatusBadRequest)
 		return
 	}

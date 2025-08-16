@@ -17,7 +17,7 @@ clean:
 	@echo "Cleaning..."
 	@rm -f main
 	
-docker-up: 
+docker-run: 
 	@if [ $(APP_ENV) = "local" ]; then \
   		echo "Using .env file"; \
 		docker_args="--env-file .env"; \
@@ -45,4 +45,4 @@ clear-db-data:
 		rm -r $(db_data_dir); \
 	fi
 	
-docker-clean-run: clear-db-data docker-up
+docker-clean-run: clear-db-data docker-run

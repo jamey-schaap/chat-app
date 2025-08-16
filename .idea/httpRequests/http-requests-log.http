@@ -1,5 +1,112 @@
 POST http://localhost:8080/chats
 Content-Type: application/json
+Content-Length: 23
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "message": "test"
+}
+
+<> 2025-08-16T164531.200.json
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 23
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "message": "test"
+}
+
+###
+
+GET http://localhost:8080/chats
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-16T164406.200.json
+
+###
+
+GET http://localhost:8080/chats
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-08-16T163318.200.json
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 23
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "message": "test"
+}
+
+<> 2025-08-16T163311.200.json
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 23
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "message": "test"
+}
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 23
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "message": "test"
+}
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 23
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "message": "test"
+}
+
+###
+
+GET http://localhost:8080/chats
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
 Content-Length: 53
 User-Agent: IntelliJ HTTP Client/GoLand 2025.2
 Accept-Encoding: br, deflate, gzip, x-gzip
