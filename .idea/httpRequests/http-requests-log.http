@@ -1,0 +1,107 @@
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 53
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "userId": "1",
+  "id": "1",
+  "message": "test"
+}
+
+<> 2025-08-16T154218.200.json
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 53
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "userId": "1",
+  "id": "1",
+  "message": "test"
+}
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 53
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "userId": "1",
+  "id": "1",
+  "message": "test"
+}
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 53
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "userId": "1",
+  "id": "1",
+  "message": "test"
+}
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 53
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "userId": "1",
+  "id": "1",
+  "message": "test"
+}
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 53
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "userId": "1",
+  "id": "1",
+  "message": "test"
+}
+
+###
+
+POST http://localhost:8080/chats
+Content-Type: application/json
+Content-Length: 53
+User-Agent: IntelliJ HTTP Client/GoLand 2025.2
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "userId": "1",
+  "id": "1",
+  "message": "test"
+}
+
+###
+

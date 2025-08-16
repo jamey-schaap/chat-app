@@ -12,5 +12,10 @@ export const clientLoader = async () =>
 
 export default function Home({ loaderData }: Route.ComponentProps) {
 	console.log(loaderData);
-	return <Chat />;
+	return <Chat chatMessages={loaderData} onSendMessage={onSendMessage} />;
 }
+
+const onSendMessage = (message: string) => {
+	console.log(message);
+	axios.post("http://localhost:8080/chats", { message, id: "2", userId: "1" });
+};
