@@ -2,13 +2,13 @@ package server
 
 import (
 	"chat-app/internal/models"
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 type chatMessage struct {
@@ -18,93 +18,135 @@ type chatMessage struct {
 	TimeStamp time.Time `json:"timestamp"`
 }
 
-func (s *server) getChatsHandler(c *gin.Context) {
+func (s *server) getChatsHandler(w http.ResponseWriter, r *http.Request) {
 	results, err := s.db.Query("SELECT * FROM chat_messages")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	chats := make([]chatMessage, 0)
+	messages := make([]chatMessage, 0)
 	for results.Next() {
 		var chat chatMessage
 		err = results.Scan(&chat.ID, &chat.Message, &chat.UserId)
 		if err != nil {
-			c.Status(http.StatusNotFound)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			// throw a specific error, catch it with middleware and return generic error?
 			return
 		}
 
-		chats = append(chats, chat)
+		messages = append(messages, chat)
 	}
 
-	c.JSON(http.StatusOK, chats)
+	w.Header().Set("Content-Type", "applicaton/json")
+	w.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(w).Encode(messages); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
-func (s *server) getChatByIdHandler(c *gin.Context) {
-	id := c.Param("id")
+func (s *server) getChatByIdHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idString := vars["id"]
 
-	result := s.db.QueryRow("SELECT * FROM chat_messages WHERE id = ?", id)
-	var chat chatMessage
-
-	err := result.Scan(&chat.ID, &chat.Message, &chat.UserId)
+	id, err := uuid.Parse(idString)
 	if err != nil {
-		c.Status(http.StatusNotFound)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	c.JSON(http.StatusOK, chat)
+	result := s.db.QueryRow("SELECT * FROM chat_messages WHERE id = uuid_to_bin(?)", id)
+
+	var chatMessage chatMessage
+	err = result.Scan(&chatMessage.ID, &chatMessage.Message, &chatMessage.UserId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(w).Encode(chatMessage); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
-func (s *server) postChatHandler(c *gin.Context) {
-	var request models.CreateChatMessageRequest
-	if err := c.BindJSON(&request); err != nil {
-		c.Status(http.StatusBadRequest)
+func (s *server) postChatHandler(w http.ResponseWriter, r *http.Request) {
+	var createChatMessageRequest models.CreateChatMessageRequest
+
+	err := json.NewDecoder(r.Body).Decode(&createChatMessageRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	tmpUserId, _ := uuid.Parse("aa48082a-5d5a-4147-9de3-2d994b6f790d")
+	tmpUserId, _ := uuid.Parse("aa48082a-5d5a-4147-9de3-2d994b6f790d") // TODO: Remove later
 	newChatMessage := chatMessage{
 		ID:        uuid.New(),
-		Message:   request.Message,
+		Message:   createChatMessageRequest.Message,
 		TimeStamp: time.Now().UTC(),
 		UserId:    tmpUserId,
 	}
 
-	_, err := s.db.Exec("INSERT INTO chat_messages VALUES (UUID_TO_BIN(?), ?, uuid_to_bin(?))", newChatMessage.ID, newChatMessage.Message, newChatMessage.UserId)
+	_, err = s.db.Exec("INSERT INTO chat_messages VALUES (UUID_TO_BIN(?), ?, uuid_to_bin(?))", newChatMessage.ID, newChatMessage.Message, newChatMessage.UserId)
 	if err != nil {
-		fmt.Println(err)
-		c.Status(http.StatusBadRequest)
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	c.JSON(http.StatusOK, newChatMessage)
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+
+	if err = json.NewEncoder(w).Encode(newChatMessage); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: mask all 500s later
+		return
+	}
 }
 
-func (s *server) updateChatHandler(c *gin.Context) {
-	var newChatMessage chatMessage
-	if err := c.BindJSON(&newChatMessage); err != nil {
-		return
-	}
+func (s *server) updateChatHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idString := vars["id"]
 
-	_, err := s.db.Exec("UPDATE chat_messages SET message = ? WHERE id = ?", newChatMessage.Message, newChatMessage.UserId)
+	id, err := uuid.Parse(idString)
 	if err != nil {
-		fmt.Println(err)
-		c.Status(http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	c.JSON(http.StatusOK, newChatMessage)
+	var newChatMessage chatMessage
+	err = json.NewDecoder(r.Body).Decode(&newChatMessage)
+	if err != nil || newChatMessage.ID != id {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = s.db.Exec("UPDATE chat_messages SET message = ? WHERE id = ?", newChatMessage.Message, newChatMessage.UserId)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	if err = json.NewEncoder(w).Encode(newChatMessage); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *server) RegisterRoutes() http.Handler {
-	router := gin.Default()
+	router := mux.NewRouter()
 
-	router.Use(CORSMiddleware())
+	router.HandleFunc("/chats", s.getChatsHandler).Methods("GET")
+	router.HandleFunc("/chats/{id}", s.getChatByIdHandler).Methods("GET")
+	router.HandleFunc("/chats", s.postChatHandler).Methods("POST")
+	router.HandleFunc("/chats/{id}", s.updateChatHandler).Methods("PUT")
 
-	router.GET("/chats", s.getChatsHandler)
-	router.GET("/chats/:id", s.getChatByIdHandler)
-	router.POST("/chats", s.postChatHandler)
-	router.PUT("/chats", s.updateChatHandler)
+	router.Use(mux.CORSMethodMiddleware(router))
 
 	return router
 }
