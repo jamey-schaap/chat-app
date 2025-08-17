@@ -5,12 +5,10 @@ import (
 	"log"
 	"os"
 	"strconv"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 type Config struct {
-	MySQL  *mysql.Config
+	MySQL  MySQLConfig
 	Server ServerConfig
 }
 
@@ -19,7 +17,6 @@ type MySQLConfig struct {
 	Passwd string
 	DBName string
 	Addr   string
-	Net    string
 }
 
 type ServerConfig struct {
@@ -41,18 +38,16 @@ func GetConfig() *Config {
 	}
 
 	cfg = &Config{
-		MySQL: mysql.NewConfig(),
+		MySQL: MySQLConfig{
+			User:   "root",
+			Passwd: os.Getenv("MYSQL_ROOT_PASSWORD"),
+			DBName: os.Getenv("MYSQL_DATABASE"),
+			Addr:   fmt.Sprintf("%s:%s", os.Getenv("MYSQL_HOST"), os.Getenv("MYSQL_PORT")),
+		},
 		Server: ServerConfig{
 			Port: port,
 		},
 	}
-
-	cfg.MySQL.User = "root"
-	cfg.MySQL.Passwd = os.Getenv("MYSQL_ROOT_PASSWORD")
-	cfg.MySQL.DBName = os.Getenv("MYSQL_DATABASE")
-	cfg.MySQL.Addr = fmt.Sprintf("%s:%s", os.Getenv("MYSQL_HOST"), os.Getenv("MYSQL_PORT"))
-	cfg.MySQL.Net = "tcp"
-	cfg.MySQL.ParseTime = true
 
 	return cfg
 }
