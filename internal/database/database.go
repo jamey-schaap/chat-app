@@ -12,12 +12,11 @@ var (
 	db *sql.DB
 )
 
-func New() *sql.DB {
+func New(cfg config.MySQLConfig) *sql.DB {
 	if db != nil {
 		return db
 	}
 
-	cfg := config.GetConfig().MySQL
 	mySqlConfig := mysql.Config{
 		User:      cfg.User,
 		Passwd:    cfg.Passwd,
