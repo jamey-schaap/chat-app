@@ -14,8 +14,9 @@ import (
 type chatMessage struct {
 	ID        uuid.UUID `json:"id" sql:"type:uuid"`
 	Message   string    `json:"message"`
-	UserId    uuid.UUID `json:"userId"  sql:"type:uuid"`
-	TimeStamp time.Time `json:"timestamp"`
+	UserId    uuid.UUID `json:"userId" db:"user_id" sql:"type:uuid"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at"`
+	UpdatedAt time.Time `json:"UpdatedAt" db:"updated_at"`
 }
 
 func (s *server) getChatsHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +28,7 @@ func (s *server) getChatsHandler(w http.ResponseWriter, r *http.Request) {
 	messages := make([]chatMessage, 0)
 	for results.Next() {
 		var chat chatMessage
-		err = results.Scan(&chat.ID, &chat.Message, &chat.UserId)
+		err = results.Scan(&chat.ID, &chat.Message, &chat.UserId, &chat.CreatedAt, &chat.UpdatedAt)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			// throw a specific error, catch it with middleware and return generic error?
@@ -37,7 +38,7 @@ func (s *server) getChatsHandler(w http.ResponseWriter, r *http.Request) {
 		messages = append(messages, chat)
 	}
 
-	w.Header().Set("Content-Type", "applicaton/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(messages); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -58,7 +59,7 @@ func (s *server) getChatByIdHandler(w http.ResponseWriter, r *http.Request) {
 	result := s.db.QueryRow("SELECT * FROM chat_messages WHERE id = uuid_to_bin(?)", id)
 
 	var chatMessage chatMessage
-	err = result.Scan(&chatMessage.ID, &chatMessage.Message, &chatMessage.UserId)
+	err = result.Scan(&chatMessage.ID, &chatMessage.Message, &chatMessage.UserId, &chatMessage.CreatedAt, &chatMessage.UpdatedAt)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -73,9 +74,9 @@ func (s *server) getChatByIdHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) postChatHandler(w http.ResponseWriter, r *http.Request) {
-	var createChatMessageRequest models.CreateChatMessageRequest
+	var creationRequest models.CreateChatMessageRequest
 
-	err := json.NewDecoder(r.Body).Decode(&createChatMessageRequest)
+	err := json.NewDecoder(r.Body).Decode(&creationRequest)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -84,8 +85,8 @@ func (s *server) postChatHandler(w http.ResponseWriter, r *http.Request) {
 	tmpUserId, _ := uuid.Parse("aa48082a-5d5a-4147-9de3-2d994b6f790d") // TODO: Remove later
 	newChatMessage := chatMessage{
 		ID:        uuid.New(),
-		Message:   createChatMessageRequest.Message,
-		TimeStamp: time.Now().UTC(),
+		Message:   creationRequest.Message,
+		CreatedAt: time.Now().UTC(),
 		UserId:    tmpUserId,
 	}
 
@@ -115,14 +116,14 @@ func (s *server) updateChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var newChatMessage chatMessage
-	err = json.NewDecoder(r.Body).Decode(&newChatMessage)
-	if err != nil || newChatMessage.ID != id {
+	var updateRequest models.UpdateChatMessageRequest
+	err = json.NewDecoder(r.Body).Decode(&updateRequest)
+	if err != nil || updateRequest.ID != id {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	_, err = s.db.Exec("UPDATE chat_messages SET message = ? WHERE id = ?", newChatMessage.Message, newChatMessage.UserId)
+	_, err = s.db.Exec("UPDATE chat_messages SET message = ? WHERE id = ?", updateRequest.Message, updateRequest.ID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -132,7 +133,7 @@ func (s *server) updateChatHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	if err = json.NewEncoder(w).Encode(newChatMessage); err != nil {
+	if err = json.NewEncoder(w).Encode(updateRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

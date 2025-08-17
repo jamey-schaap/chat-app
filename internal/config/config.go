@@ -52,6 +52,7 @@ func GetConfig() *Config {
 	cfg.MySQL.DBName = os.Getenv("MYSQL_DATABASE")
 	cfg.MySQL.Addr = fmt.Sprintf("%s:%s", os.Getenv("MYSQL_HOST"), os.Getenv("MYSQL_PORT"))
 	cfg.MySQL.Net = "tcp"
+	cfg.MySQL.ParseTime = true
 
 	return cfg
 }
