@@ -3,8 +3,9 @@ package database
 import (
 	"chat-app/internal/config"
 	"database/sql"
-	"fmt"
 	"log"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 var (
@@ -17,9 +18,17 @@ func New() *sql.DB {
 	}
 
 	cfg := config.GetConfig().MySQL
+	mySqlConfig := mysql.Config{
+		User:      cfg.User,
+		Passwd:    cfg.Passwd,
+		DBName:    cfg.DBName,
+		Addr:      cfg.Addr,
+		Net:       "tcp",
+		ParseTime: true,
+	}
 
 	var err error
-	db, err = sql.Open("mysql", cfg.FormatDSN())
+	db, err = sql.Open("mysql", mySqlConfig.FormatDSN())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,6 +38,5 @@ func New() *sql.DB {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Successfully connected to the database!")
 	return db
 }
