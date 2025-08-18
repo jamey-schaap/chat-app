@@ -4,13 +4,14 @@ import (
 	"chat-app/internal/config"
 	"database/sql"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func NewServer(config *config.Config, db *sql.DB) http.Handler {
-	mux := http.NewServeMux()
-	registerRoutes(mux, config, db)
+	router := mux.NewRouter()
+	RegisterRoutes(router, config, db)
 
-	var handler http.Handler = mux
-	handler = CorsMiddleware(handler)
-	return handler
+	router.Use(mux.CORSMethodMiddleware(router))
+	return router
 }

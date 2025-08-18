@@ -17,3 +17,7 @@ type ChatMessage struct {
 type CreateChatMessageRequest struct {
 	Message string `json:"message"`
 }
+
+type PatchChatMessageRequest struct {
+	Message string `json:"message"`
+}

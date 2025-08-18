@@ -12,17 +12,17 @@ import (
 )
 
 type Controller struct {
-	repository *Repository
+	chatMessageRepository *ChatMessageRepository
 }
 
 func NewController(db *sql.DB) *Controller {
 	return &Controller{
-		repository: NewRepository(db),
+		chatMessageRepository: NewChatMessageRepository(db),
 	}
 }
 
-func (c *Controller) GetChatsHandler(w http.ResponseWriter, r *http.Request) {
-	chatsMessages, err := c.repository.GetAll()
+func (c *Controller) GetChatsHandler(w http.ResponseWriter, _ *http.Request) {
+	chatsMessages, err := c.chatMessageRepository.GetAll()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -46,7 +46,7 @@ func (c *Controller) GetChatByIdHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	chatMessage, err := c.repository.GetById(id)
+	chatMessage, err := c.chatMessageRepository.GetById(id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			w.WriteHeader(http.StatusNotFound)
@@ -82,7 +82,7 @@ func (c *Controller) PostChatHandler(w http.ResponseWriter, r *http.Request) {
 		UserId:    tmpUserId,
 	}
 
-	chatMessage, err := c.repository.Create(newChatMessage)
+	chatMessage, err := c.chatMessageRepository.Create(newChatMessage)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -97,7 +97,7 @@ func (c *Controller) PostChatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (c *Controller) UpdateChatHandler(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) PatchChatHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	idString := vars["id"]
 
@@ -107,18 +107,18 @@ func (c *Controller) UpdateChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var chatMessage ChatMessage
-	err = json.NewDecoder(r.Body).Decode(&chatMessage)
-	if err != nil || chatMessage.ID != id {
+	var patch PatchChatMessageRequest
+	err = json.NewDecoder(r.Body).Decode(&patch)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if err = json.NewEncoder(w).Encode(updateRequest); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	err = c.chatMessageRepository.Patch(id, &patch)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

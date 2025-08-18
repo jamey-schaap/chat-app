@@ -2,23 +2,21 @@ package chat_messages
 
 import (
 	"database/sql"
-	"log"
-	"net/http"
 
 	"github.com/google/uuid"
 )
 
-type Repository struct {
+type ChatMessageRepository struct {
 	db *sql.DB
 }
 
-func NewRepository(db *sql.DB) *Repository {
-	return &Repository{
+func NewChatMessageRepository(db *sql.DB) *ChatMessageRepository {
+	return &ChatMessageRepository{
 		db: db,
 	}
 }
 
-func (r *Repository) GetAll() ([]ChatMessage, error) {
+func (r *ChatMessageRepository) GetAll() ([]ChatMessage, error) {
 	results, err := r.db.Query("SELECT * FROM chat_messages")
 	if err != nil {
 		return nil, err
@@ -38,7 +36,7 @@ func (r *Repository) GetAll() ([]ChatMessage, error) {
 	return messages, nil
 }
 
-func (r *Repository) GetById(id uuid.UUID) (*ChatMessage, error) {
+func (r *ChatMessageRepository) GetById(id uuid.UUID) (*ChatMessage, error) {
 	result := r.db.QueryRow("SELECT * FROM chat_messages WHERE id = uuid_to_bin(?)", id)
 
 	var chatMessage ChatMessage
@@ -50,7 +48,7 @@ func (r *Repository) GetById(id uuid.UUID) (*ChatMessage, error) {
 	return &chatMessage, nil
 }
 
-func (r *Repository) Create(chatMessage *ChatMessage) (*ChatMessage, error) {
+func (r *ChatMessageRepository) Create(chatMessage *ChatMessage) (*ChatMessage, error) {
 	_, err := r.db.Exec("INSERT INTO chat_messages VALUES (UUID_TO_BIN(?), ?, uuid_to_bin(?))", chatMessage.ID, chatMessage.Message, chatMessage.UserId)
 	if err != nil {
 		return nil, err
@@ -59,10 +57,10 @@ func (r *Repository) Create(chatMessage *ChatMessage) (*ChatMessage, error) {
 	return chatMessage, err
 }
 
-func (r *Repository) Update(chatMessage *ChatMessage) (*ChatMessage, error) {
-	_, err := r.db.Exec("UPDATE chat_messages SET message = ? WHERE id = ?", updateRequest.Message, updateRequest.ID)
+func (r *ChatMessageRepository) Patch(id uuid.UUID, patch *PatchChatMessageRequest) error {
+	_, err := r.db.Exec("UPDATE chat_messages SET message = ? WHERE id = ?", patch.Message, id)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return chatMessage, err
+	return err
 }
