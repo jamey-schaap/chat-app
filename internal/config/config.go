@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 type Config struct {
@@ -20,7 +21,11 @@ type MySQLConfig struct {
 }
 
 type ServerConfig struct {
-	Port int
+	Host         string
+	Port         int
+	IdleTimeout  time.Duration
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
 }
 
 var (
@@ -37,6 +42,21 @@ func GetConfig() *Config {
 		log.Fatal(err)
 	}
 
+	idleTimeout, err := time.ParseDuration(os.Getenv("IDLE_TIMEOUT"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	readTimeout, err := time.ParseDuration(os.Getenv("READ_TIMEOUT"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	writeTimeout, err := time.ParseDuration(os.Getenv("WRITE_TIMEOUT"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	cfg = &Config{
 		MySQL: MySQLConfig{
 			User:   "root",
@@ -45,7 +65,10 @@ func GetConfig() *Config {
 			Addr:   fmt.Sprintf("%s:%s", os.Getenv("MYSQL_HOST"), os.Getenv("MYSQL_PORT")),
 		},
 		Server: ServerConfig{
-			Port: port,
+			Port:         port,
+			IdleTimeout:  idleTimeout,
+			ReadTimeout:  readTimeout,
+			WriteTimeout: writeTimeout,
 		},
 	}
 

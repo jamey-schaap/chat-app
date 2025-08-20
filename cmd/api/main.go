@@ -5,11 +5,12 @@ import (
 	"chat-app/internal/database"
 	"chat-app/internal/server"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -26,14 +27,15 @@ func main() {
 	srv := server.NewServer(cfg, db)
 
 	httpServer := &http.Server{
-		Addr:    net.JoinHostPort("host", "port"),
-		Handler: srv,
+		Addr:         net.JoinHostPort(cfg.Server.Host, strconv.Itoa(cfg.Server.Port)),
+		Handler:      srv,
+		ReadTimeout:  cfg.Server.ReadTimeout * time.Second,
+		WriteTimeout: cfg.Server.WriteTimeout * time.Second,
+		IdleTimeout:  cfg.Server.IdleTimeout * time.Second,
 	}
 
-	go func() {
-		log.Printf("Listening on %s\n", httpServer.Addr)
-		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			_, _ = fmt.Fprintf(os.Stderr, "error listening and serving: %s\n", err)
-		}
-	}()
+	log.Printf("Listening on %s\n", httpServer.Addr)
+	if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatalf("Error listening and serving: %s\n", err)
+	}
 }
