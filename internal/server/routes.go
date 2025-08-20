@@ -7,10 +7,11 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
-func RegisterRoutes(router *mux.Router, config *config.Config, db *sql.DB) http.Handler {
-	chatsController := chatMessages.NewController(db)
+func RegisterRoutes(router *mux.Router, config *config.Config, db *sql.DB, logger *zap.Logger) http.Handler {
+	chatsController := chatMessages.NewController(db, logger)
 
 	router.HandleFunc("/chats", chatsController.GetChatsHandler).Methods("GET")
 	router.HandleFunc("/chats/{id}", chatsController.GetChatByIdHandler).Methods("GET")

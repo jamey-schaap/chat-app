@@ -9,15 +9,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
 type Controller struct {
 	chatMessageRepository *ChatMessageRepository
+	logger                *zap.Logger
 }
 
-func NewController(db *sql.DB) *Controller {
+func NewController(db *sql.DB, logger *zap.Logger) *Controller {
 	return &Controller{
 		chatMessageRepository: NewChatMessageRepository(db),
+		logger:                logger,
 	}
 }
 
