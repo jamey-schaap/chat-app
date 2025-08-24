@@ -17,7 +17,7 @@ func RegisterRoutes(router *mux.Router, config *config.Config, db *sql.DB, logge
 	router.HandleFunc("/chats/{id}", chatsController.GetChatByIdHandler).Methods("GET")
 	router.HandleFunc("/chats", chatsController.PostChatHandler).Methods("POST")
 	router.HandleFunc("/chats/{id}", chatsController.PatchChatHandler).Methods("PATCH")
-	router.HandleFunc("/echo", chatsController.HandleWebSocketConnections)
+	router.HandleFunc("/ws", chatsController.WebSocketHandler)
 
 	return router
 }

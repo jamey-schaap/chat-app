@@ -2,7 +2,6 @@ import type { Route } from "./+types/home";
 import axios from "axios";
 import type ChatMessage from "~/models/chat-message";
 import { Chat } from "~/components/chat/chat.component";
-import { useRef } from "react";
 
 export function meta({}: Route.MetaArgs) {
 	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
@@ -13,7 +12,7 @@ export const clientLoader = async () =>
 
 export default function Home({ loaderData }: Route.ComponentProps) {
 	// const wsRef = useRef<WebSocket | null>(null);
-	const socket = new WebSocket("ws://localhost:8080/echo");
+	const socket = new WebSocket("ws://localhost:8080/ws");
 
 	socket.onopen = () => {
 		console.log("Connected to the WebSocket server");

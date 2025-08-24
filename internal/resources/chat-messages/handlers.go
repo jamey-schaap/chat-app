@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,10 +20,13 @@ type Controller struct {
 }
 
 func NewController(db *sql.DB, logger *zap.Logger) *Controller {
-	return &Controller{
+	con := &Controller{
 		chatMessageRepository: NewChatMessageRepository(db),
 		logger:                logger,
 	}
+
+	go con.handleMessages()
+	return con
 }
 
 func (c *Controller) GetChatsHandler(w http.ResponseWriter, _ *http.Request) {
@@ -128,16 +132,21 @@ func (c *Controller) PatchChatHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		// todo implement
-		return true
-	},
-	ReadBufferSize:  2048,
-	WriteBufferSize: 2048,
-}
+var (
+	upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			origin := r.Header.Get("Origin")
+			return origin == "http://localhost:5173"
+		},
+		ReadBufferSize:  2048,
+		WriteBufferSize: 2048,
+	}
+	clients   = make(map[*websocket.Conn]bool)
+	mutex     = &sync.Mutex{}
+	broadcast = make(chan []byte)
+)
 
-func (c *Controller) HandleWebSocketConnections(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
@@ -147,22 +156,52 @@ func (c *Controller) HandleWebSocketConnections(w http.ResponseWriter, r *http.R
 	}
 
 	defer func() {
+		mutex.Lock()
+		delete(clients, conn)
+		mutex.Unlock()
+
 		if err := conn.Close(); err != nil {
 			c.logger.Error(err.Error(), zap.Error(err))
 			return
 		}
 	}()
 
+	mutex.Lock()
+	clients[conn] = true
+	mutex.Unlock()
+
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
 			c.logger.Error(err.Error(), zap.Error(err))
+
+			mutex.Lock()
+			delete(clients, conn)
+			mutex.Unlock()
 			break
 		}
 
-		if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
-			c.logger.Error(err.Error(), zap.Error(err))
-			break
+		broadcast <- msg
+	}
+}
+
+func (c *Controller) handleMessages() {
+	for {
+		msg := <-broadcast
+
+		mutex.Lock()
+		for client := range clients {
+			if err := client.WriteMessage(websocket.TextMessage, msg); err != nil {
+				c.logger.Error(err.Error(), zap.Error(err))
+
+				if err := client.Close(); err != nil {
+					c.logger.Error(err.Error(), zap.Error(err))
+				}
+
+				delete(clients, client)
+				break
+			}
 		}
+		mutex.Unlock()
 	}
 }
