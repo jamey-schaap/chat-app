@@ -185,15 +185,37 @@ func (c *Controller) WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type MessageType int
+
+const (
+	NewChatMessage MessageType = iota
+)
+
+type WebSocketEvent struct {
+	Event   MessageType `json:"event"`
+	Payload interface{} `json:"payload"`
+}
+
 func (c *Controller) handleMessages() {
 	for {
 		msg := <-broadcast
 
+		event := &WebSocketEvent{
+			Event:   NewChatMessage,
+			Payload: string(msg),
+		}
+
+		msgBin, err := json.Marshal(event)
+		if err != nil {
+			c.logger.Fatal(err.Error(), zap.Error(err))
+			continue
+		}
+
 		mutex.Lock()
 		for client := range clients {
-			if err := client.WriteMessage(websocket.TextMessage, msg); err != nil {
-				c.logger.Error(err.Error(), zap.Error(err))
 
+			if err := client.WriteMessage(websocket.TextMessage, msgBin); err != nil {
+				c.logger.Error(err.Error(), zap.Error(err))
 				if err := client.Close(); err != nil {
 					c.logger.Error(err.Error(), zap.Error(err))
 				}

@@ -20,7 +20,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 	socket.onclose = () => {
 		console.log("Disconnected from the WebSocket server");
 	};
-	socket.onmessage = (event: MessageEvent) => {
+	socket.onmessage = (event: MessageEvent<{ event: number; payload: unknown }>) => {
 		console.log("Received from WebSocket server: " + event.data);
 	};
 
