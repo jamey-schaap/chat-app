@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 )
 
@@ -32,6 +33,7 @@ func (c *Controller) GetChatsHandler(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(chatsMessages); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -124,4 +126,43 @@ func (c *Controller) PatchChatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		// todo implement
+		return true
+	},
+	ReadBufferSize:  2048,
+	WriteBufferSize: 2048,
+}
+
+func (c *Controller) HandleWebSocketConnections(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+
+	if err != nil {
+		c.logger.Error(err.Error(), zap.Error(err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	defer func() {
+		if err := conn.Close(); err != nil {
+			c.logger.Error(err.Error(), zap.Error(err))
+			return
+		}
+	}()
+
+	for {
+		_, msg, err := conn.ReadMessage()
+		if err != nil {
+			c.logger.Error(err.Error(), zap.Error(err))
+			break
+		}
+
+		if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+			c.logger.Error(err.Error(), zap.Error(err))
+			break
+		}
+	}
 }

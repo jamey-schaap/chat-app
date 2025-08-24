@@ -4,17 +4,17 @@ import SendIconSvg from "~/icons/send.icon.svg";
 import type ChatMessage from "~/models/chat-message";
 import { useState } from "react";
 
-type Props = { chatMessages: ChatMessage[]; onSendMessage: (message: string) => void };
+type Props = { chatMessages: ChatMessage[]; onSendMessage: (message: string) => Promise<void> | void };
 
 export const Chat = ({ chatMessages, onSendMessage }: Props) => {
 	const [message, setMessage] = useState<string>("");
 
-	const sendMessage = () => {
+	const sendMessage = async () => {
 		if (message.trim() === "") {
 			return;
 		}
 
-		onSendMessage(message);
+		await onSendMessage(message);
 		setMessage("");
 	};
 
@@ -44,9 +44,9 @@ export const Chat = ({ chatMessages, onSendMessage }: Props) => {
 							onChange={(event) => {
 								setMessage(event.target.value);
 							}}
-							onKeyDown={(event) => {
+							onKeyDown={async (event) => {
 								if (event.key === "Enter") {
-									sendMessage();
+									await sendMessage();
 								}
 							}}
 						/>

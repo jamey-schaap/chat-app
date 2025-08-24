@@ -1,31 +1,46 @@
 package middleware
 
 import (
+	"bufio"
 	"fmt"
+	"net"
 	"net/http"
 	"time"
 
 	"go.uber.org/zap"
 )
 
-type responseWriter struct {
+type responseWriterWrapper struct {
 	http.ResponseWriter
+	hj          http.Hijacker
 	status      int
 	wroteHeader bool
 }
 
-func wrapResponseWriter(w http.ResponseWriter) *responseWriter {
-	return &responseWriter{ResponseWriter: w}
+func wrapResponseWriter(w http.ResponseWriter) *responseWriterWrapper {
+	rw := &responseWriterWrapper{ResponseWriter: w}
+	if hj, ok := w.(http.Hijacker); ok {
+		rw.hj = hj
+	}
+	return rw
+
 }
 
-func (r *responseWriter) WriteHeader(code int) {
-	if r.wroteHeader {
+func (rw *responseWriterWrapper) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if rw.hj == nil {
+		return nil, nil, http.ErrNotSupported
+	}
+	return rw.hj.Hijack()
+}
+
+func (rw *responseWriterWrapper) WriteHeader(code int) {
+	if rw.wroteHeader {
 		return
 	}
 
-	r.status = code
-	r.ResponseWriter.WriteHeader(code)
-	r.wroteHeader = true
+	rw.status = code
+	rw.ResponseWriter.WriteHeader(code)
+	rw.wroteHeader = true
 	return
 }
 
