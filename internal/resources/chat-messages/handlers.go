@@ -75,6 +75,8 @@ func (c *Controller) GetChatByIdHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (c *Controller) PostChatHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	var creationRequest CreateChatMessageRequest
 
 	err := json.NewDecoder(r.Body).Decode(&creationRequest)
@@ -104,6 +106,8 @@ func (c *Controller) PostChatHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError) // TODO: mask all 500s later
 		return
 	}
+
+	broadcast <- []byte(chatMessage.Message)
 }
 
 func (c *Controller) PatchChatHandler(w http.ResponseWriter, r *http.Request) {

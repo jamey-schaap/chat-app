@@ -4,7 +4,7 @@ import SendIconSvg from "~/icons/send.icon.svg";
 import type ChatMessage from "~/models/chat-message";
 import { useState } from "react";
 
-type Props = { chatMessages: ChatMessage[]; onSendMessage: (message: string) => Promise<void> | void };
+type Props = { chatMessages: ChatMessage[]; onSendMessage: (message: string) => Promise<unknown> | void };
 
 export const Chat = ({ chatMessages, onSendMessage }: Props) => {
 	const [message, setMessage] = useState<string>("");

@@ -37,7 +37,7 @@ func (r *ChatMessageRepository) GetAll() ([]ChatMessage, error) {
 }
 
 func (r *ChatMessageRepository) GetById(id uuid.UUID) (*ChatMessage, error) {
-	result := r.db.QueryRow("SELECT * FROM chat_messages WHERE id = uuid_to_bin(?)", id)
+	result := r.db.QueryRow("SELECT * FROM chat_messages WHERE id = UUID_TO_BIN(?)", id)
 
 	var chatMessage ChatMessage
 	err := result.Scan(&chatMessage.ID, &chatMessage.Message, &chatMessage.UserId, &chatMessage.CreatedAt, &chatMessage.UpdatedAt)
@@ -49,7 +49,7 @@ func (r *ChatMessageRepository) GetById(id uuid.UUID) (*ChatMessage, error) {
 }
 
 func (r *ChatMessageRepository) Create(chatMessage *ChatMessage) (*ChatMessage, error) {
-	_, err := r.db.Exec("INSERT INTO chat_messages VALUES (UUID_TO_BIN(?), ?, uuid_to_bin(?))", chatMessage.ID, chatMessage.Message, chatMessage.UserId)
+	_, err := r.db.Exec("INSERT INTO chat_messages (id, message, user_id, created_at) VALUES (UUID_TO_BIN(?), ?, UUID_TO_BIN(?), ?)", chatMessage.ID, chatMessage.Message, chatMessage.UserId, chatMessage.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
