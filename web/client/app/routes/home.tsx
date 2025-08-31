@@ -11,7 +11,6 @@ export const clientLoader = async () =>
 	axios.get<ChatMessage[]>("http://localhost:8080/chats").then((response) => response.data);
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+	const onSendMessage = (message: string) => axios.post("http://localhost:8080/chats", JSON.stringify({ message }));
 	return <Chat chatMessages={loaderData} onSendMessage={onSendMessage} />;
 }
-
-const onSendMessage = (message: string) => axios.post("http://localhost:8080/chats", JSON.stringify({ message }));

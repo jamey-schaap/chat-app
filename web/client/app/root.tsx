@@ -2,6 +2,7 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { useWebSocket } from "~/hooks/useWebSocket.hook";
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -35,19 +36,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-	// const wsRef = useRef<WebSocket | null>(null);
-	const socket = new WebSocket("ws://localhost:8080/ws");
-
-	socket.onopen = () => {
-		console.log("Connected to the WebSocket server");
-	};
-	socket.onclose = () => {
-		console.log("Disconnected from the WebSocket server");
-	};
-	socket.onmessage = (event: MessageEvent<{ event: number; payload: unknown }>) => {
-		console.log("Received from WebSocket server: " + event.data);
-	};
-
+	useWebSocket();
 	return <Outlet />;
 }
 

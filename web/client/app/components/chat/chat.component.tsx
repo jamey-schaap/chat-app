@@ -28,7 +28,7 @@ export const Chat = ({ chatMessages, onSendMessage }: Props) => {
 					</div>
 				</header>
 				<div className="max-w-[400px] w-full space-y-6 px-4">
-					<div className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4">
+					<div className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4 max-h-100 overflow-y-scroll">
 						{chatMessages.map((chatMessage) => (
 							<p key={chatMessage.id} className="leading-6 text-gray-700 dark:text-gray-200 text-center">
 								{chatMessage.userId}: {chatMessage.message}

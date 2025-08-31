@@ -25,7 +25,7 @@ func NewController(db *sql.DB, logger *zap.Logger) *Controller {
 		logger:                logger,
 	}
 
-	go con.handleMessages()
+	go con.handleWebsocketBroadcast()
 	return con
 }
 
@@ -107,7 +107,7 @@ func (c *Controller) PostChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	broadcast <- []byte(chatMessage.Message)
+	broadcast <- []byte(chatMessage.ID.String())
 }
 
 func (c *Controller) PatchChatHandler(w http.ResponseWriter, r *http.Request) {
@@ -185,28 +185,32 @@ func (c *Controller) WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		broadcast <- msg
+		c.logger.Info(string(msg)) // do something with the message
 	}
 }
 
 type MessageType int
 
 const (
-	NewChatMessage MessageType = iota
+	ChatMessageCreated MessageType = iota
 )
 
 type WebSocketEvent struct {
-	Event   MessageType `json:"event"`
+	Type    MessageType `json:"type"`
 	Payload interface{} `json:"payload"`
 }
 
-func (c *Controller) handleMessages() {
+func (c *Controller) handleWebsocketBroadcast() {
 	for {
-		msg := <-broadcast
+		msgId := <-broadcast
 
 		event := &WebSocketEvent{
-			Event:   NewChatMessage,
-			Payload: string(msg),
+			Type: ChatMessageCreated,
+			Payload: struct {
+				ID string `json:"id"`
+			}{
+				ID: string(msgId),
+			},
 		}
 
 		msgBin, err := json.Marshal(event)
