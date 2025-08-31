@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3e588fa8-0a82-4e68-a975-5954b75b42de" name="Changes" comment="Merge branch 'dev'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml">
-      <change afterPath="$PROJECT_DIR$/web/client/app/services/websocket.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/resources/chat-messages/handlers.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/resources/chat-messages/handlers.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/client/app/components/chat/chat.component.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/client/app/components/chat/chat.component.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/client/app/root.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/client/app/root.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/client/app/routes/home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/web/client/app/routes/home.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/client/react-router.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/web/client/react-router.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
