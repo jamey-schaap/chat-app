@@ -107,7 +107,15 @@ func (c *Controller) PostChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	broadcast <- []byte(chatMessage.ID.String())
+	event := WebSocketEvent{
+		Type: ChatMessageCreated,
+		Payload: struct {
+			ID string `json:"id"`
+		}{
+			ID: chatMessage.ID.String(),
+		},
+	}
+	broadcast <- event
 }
 
 func (c *Controller) PatchChatHandler(w http.ResponseWriter, r *http.Request) {
@@ -136,6 +144,17 @@ func (c *Controller) PatchChatHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+type MessageType int
+
+const (
+	ChatMessageCreated MessageType = iota
+)
+
+type WebSocketEvent struct {
+	Type    MessageType `json:"type"`
+	Payload interface{} `json:"payload"`
+}
+
 var (
 	upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
@@ -147,7 +166,7 @@ var (
 	}
 	clients   = make(map[*websocket.Conn]bool)
 	mutex     = &sync.Mutex{}
-	broadcast = make(chan []byte)
+	broadcast = make(chan WebSocketEvent)
 )
 
 func (c *Controller) WebSocketHandler(w http.ResponseWriter, r *http.Request) {
@@ -189,29 +208,9 @@ func (c *Controller) WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type MessageType int
-
-const (
-	ChatMessageCreated MessageType = iota
-)
-
-type WebSocketEvent struct {
-	Type    MessageType `json:"type"`
-	Payload interface{} `json:"payload"`
-}
-
 func (c *Controller) handleWebsocketBroadcast() {
 	for {
-		msgId := <-broadcast
-
-		event := &WebSocketEvent{
-			Type: ChatMessageCreated,
-			Payload: struct {
-				ID string `json:"id"`
-			}{
-				ID: string(msgId),
-			},
-		}
+		event := <-broadcast
 
 		msgBin, err := json.Marshal(event)
 		if err != nil {
